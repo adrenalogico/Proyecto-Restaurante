@@ -69,8 +69,12 @@ function comprobar(condicion, mensaje) {
 }
 const normalizarTipo = (tipo) =>
   tipo.toLowerCase().replace(/^int\(\d+\)/, "int");
+// MySQL 8 cita con "…" (ANSI_QUOTES) y antepone _utf8mb4 a los textos de los CHECK.
 const normalizarCheck = (expresion) =>
-  expresion.toLowerCase().replace(/[`"\s()]/g, "");
+  expresion
+    .toLowerCase()
+    .replace(/_(?:utf8mb[34]|utf8|latin1)'/g, "'")
+    .replace(/[`"\s()]/g, "");
 
 async function inspeccionar(conexion, tabla) {
   const [[datos]] = await conexion.query(

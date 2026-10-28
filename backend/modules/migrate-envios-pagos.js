@@ -39,8 +39,13 @@ async function validarExistentes(conexion, sql) {
         );
     }
     const [[ddl]] = await conexion.query("SHOW CREATE TABLE ??", [tabla]);
-    // MySQL con ANSI_QUOTES (Aiven) cita identificadores con "…" en vez de `…`.
-    const normalizar = (valor) => valor.toLowerCase().replace(/[`"\s()]/g, "");
+    // MySQL 8 (Aiven): ANSI_QUOTES cita identificadores con "…" en vez de `…`, y los
+    // textos de los CHECK llevan prefijo de juego de caracteres (_utf8mb4'pendiente').
+    const normalizar = (valor) =>
+      valor
+        .toLowerCase()
+        .replace(/_(?:utf8mb[34]|utf8|latin1)'/g, "'")
+        .replace(/[`"\s()]/g, "");
     const creado = normalizar(ddl["Create Table"]);
     for (const linea of cuerpo
       .split("\n")
