@@ -39,7 +39,8 @@ async function validarExistentes(conexion, sql) {
         );
     }
     const [[ddl]] = await conexion.query("SHOW CREATE TABLE ??", [tabla]);
-    const normalizar = (valor) => valor.toLowerCase().replace(/[`\s()]/g, "");
+    // MySQL con ANSI_QUOTES (Aiven) cita identificadores con "…" en vez de `…`.
+    const normalizar = (valor) => valor.toLowerCase().replace(/[`"\s()]/g, "");
     const creado = normalizar(ddl["Create Table"]);
     for (const linea of cuerpo
       .split("\n")

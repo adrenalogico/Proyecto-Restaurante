@@ -70,7 +70,7 @@ function comprobar(condicion, mensaje) {
 const normalizarTipo = (tipo) =>
   tipo.toLowerCase().replace(/^int\(\d+\)/, "int");
 const normalizarCheck = (expresion) =>
-  expresion.toLowerCase().replace(/[`\s()]/g, "");
+  expresion.toLowerCase().replace(/[`"\s()]/g, "");
 
 async function inspeccionar(conexion, tabla) {
   const [[datos]] = await conexion.query(
@@ -161,13 +161,15 @@ async function validarTabla(conexion, tabla, esperado, actual, previa = false) {
   );
   comprobar(
     esperado.checks
-      .filter((clausula) => !faltantes.some((nombre) => clausula.includes(nombre)))
+      .filter(
+        (clausula) => !faltantes.some((nombre) => clausula.includes(nombre)),
+      )
       .every((clausula) =>
-      checks.some(
-        (check) =>
-          normalizarCheck(check.CHECK_CLAUSE) === normalizarCheck(clausula),
+        checks.some(
+          (check) =>
+            normalizarCheck(check.CHECK_CLAUSE) === normalizarCheck(clausula),
+        ),
       ),
-    ),
     error,
   );
 }
