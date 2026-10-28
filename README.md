@@ -50,7 +50,9 @@ los comandos y las variables fijas; el panel pide solo los datos secretos (Aiven
 y Mercado Pago). `FRONTEND_ORIGIN` es opcional en Render: si falta, se usa la URL que
 Render define en `RENDER_EXTERNAL_URL`. Con `NACAR_DATOS_DEMO=1` (ya incluido) el primer
 arranque carga mesas, platos, tarifas, insumos y recetas de ejemplo para la expo; se
-puede repetir sin duplicar ni pisar lo que se cargue a mano.
+puede repetir sin duplicar ni pisar lo que se cargue a mano. Con `NACAR_VISITANTE_PUBLICO=1`
+(también incluido) existe una cuenta pública de mozo con usuario y clave `visitante` para el
+público de la expo; en cada arranque se le repone esa clave. Con `0` no se toca.
 
 ### Paso a paso (todo desde los paneles web)
 

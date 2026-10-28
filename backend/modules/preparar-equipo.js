@@ -87,8 +87,12 @@ export async function prepararEquipo({ online = false } = {}) {
     // Importar después de cargar .env: la conexión se crea con la base de esta PC.
     ({ default: pool } = await import("./db.js"));
     const { migrar } = await import("./migrate.js");
-    const { sembrarUsuarios, cargarAccesosPruebas, leerEquipo } =
-      await import("./seed-usuarios.js");
+    const {
+      sembrarUsuarios,
+      cargarAccesosPruebas,
+      leerEquipo,
+      asegurarVisitantePublico,
+    } = await import("./seed-usuarios.js");
     await migrar();
     if (online) {
       // Con SEED_EQUIPO (y SEED_PASSWORD_<USUARIO>) en el panel se crea también el
@@ -108,6 +112,10 @@ export async function prepararEquipo({ online = false } = {}) {
           ? `Cuentas creadas: ${creados.join(", ")}.`
           : "Base online lista; se conservaron las cuentas existentes.",
       );
+      if (process.env.NACAR_VISITANTE_PUBLICO === "1") {
+        await asegurarVisitantePublico();
+        console.log('Cuenta pública lista: usuario y clave "visitante" (mozo).');
+      }
       // NACAR_DATOS_DEMO=1 (expo): mesas, platos, tarifas, insumos y recetas de ejemplo.
       if (process.env.NACAR_DATOS_DEMO === "1") {
         const { cargarDatosDemo } = await import("./datos-demo.js");

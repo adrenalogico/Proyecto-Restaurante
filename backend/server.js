@@ -11,6 +11,8 @@ if (process.env.RENDER === "true") {
   entorno.TZ ||= "America/Argentina/Buenos_Aires";
   entorno.DB_DATABASE ||= "nacar";
   entorno.NACAR_DATOS_DEMO ||= "1";
+  // Expo: cuenta "visitante"/"visitante" para el público. Con 0 en el panel se apaga.
+  entorno.NACAR_VISITANTE_PUBLICO ||= "1";
   if (/\.aivencloud\.com$/i.test(entorno.DB_HOST || "")) entorno.DB_SSL ||= "1";
   for (const paso of [
     ["./modules/construir-frontend.js"],

@@ -127,6 +127,30 @@ export async function sembrarUsuarios({
     conexion.release();
   }
 }
+// Cuenta pública de la expo (NACAR_VISITANTE_PUBLICO=1): usuario y clave "visitante",
+// para que el público entre fácil desde el QR. No es un secreto: va impresa en el cartel.
+// Se crea como mozo o se le vuelve a poner esa clave en cada arranque.
+export async function asegurarVisitantePublico(pool = db) {
+  const usuario = "visitante";
+  const hash = await hashClave(usuario);
+  const [[existe]] = await pool.query(
+    "SELECT tipo FROM usuarios WHERE usuario=?",
+    [usuario],
+  );
+  if (existe && existe.tipo === "admin")
+    throw new Error("La cuenta visitante no puede ser administradora.");
+  if (existe)
+    await pool.query(
+      "UPDATE usuarios SET password_hash=?, activo=1 WHERE usuario=?",
+      [hash, usuario],
+    );
+  else
+    await pool.query(
+      "INSERT INTO usuarios (usuario,nombre,tipo,password_hash,activo) VALUES (?,?,?,?,1)",
+      [usuario, "Visitante de la expo", "mozo", hash],
+    );
+}
+
 if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
