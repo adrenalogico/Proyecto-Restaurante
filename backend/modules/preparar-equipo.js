@@ -91,7 +91,15 @@ export async function prepararEquipo({ online = false } = {}) {
       await import("./seed-usuarios.js");
     await migrar();
     if (online) {
-      const creados = await sembrarUsuarios();
+      // Sin ADMIN_PASSWORD válida la página igual arranca: se avisa y el admin se
+      // crea en el próximo despliegue, cuando la clave esté cargada en el panel.
+      const creados = await sembrarUsuarios().catch((error) => {
+        if (!/contraseña de 10 a 128/.test(error.message)) throw error;
+        console.warn(
+          `Aviso: no se creó el administrador. ${error.message} Cargá ADMIN_PASSWORD en el panel y volvé a desplegar.`,
+        );
+        return [];
+      });
       console.log(
         creados.length
           ? `Administrador creado: ${creados.join(", ")}. El resto del equipo se da de alta desde Equipo.`
