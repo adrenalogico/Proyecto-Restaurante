@@ -6,7 +6,7 @@
     "node": ">=22.16"
   },
   "scripts": {
-    "build": "npm ci --prefix backend --omit=dev && npm ci --prefix frontend --include=dev && npm run build --prefix frontend",
+    "build": "npm ci --prefix frontend --include=dev && npm run build --prefix frontend && npm ci --prefix backend --omit=dev",
     "start": "npm run start:online --prefix backend"
   }
 }
