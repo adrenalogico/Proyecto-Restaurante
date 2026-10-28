@@ -91,18 +91,21 @@ export async function prepararEquipo({ online = false } = {}) {
       await import("./seed-usuarios.js");
     await migrar();
     if (online) {
-      // Sin ADMIN_PASSWORD válida la página igual arranca: se avisa y el admin se
-      // crea en el próximo despliegue, cuando la clave esté cargada en el panel.
-      const creados = await sembrarUsuarios().catch((error) => {
+      // Con SEED_EQUIPO (y SEED_PASSWORD_<USUARIO>) en el panel se crea también el
+      // equipo; si no, solo el admin. Sin una clave válida la página igual arranca:
+      // se avisa y las cuentas se crean en el próximo despliegue.
+      const creados = await sembrarUsuarios({
+        incluirEquipo: Boolean(process.env.SEED_EQUIPO),
+      }).catch((error) => {
         if (!/contraseña de 10 a 128/.test(error.message)) throw error;
         console.warn(
-          `Aviso: no se creó el administrador. ${error.message} Cargá ADMIN_PASSWORD en el panel y volvé a desplegar.`,
+          `Aviso: no se crearon cuentas. ${error.message} Cargá las claves en el panel y volvé a desplegar.`,
         );
         return [];
       });
       console.log(
         creados.length
-          ? `Administrador creado: ${creados.join(", ")}. El resto del equipo se da de alta desde Equipo.`
+          ? `Cuentas creadas: ${creados.join(", ")}.`
           : "Base online lista; se conservaron las cuentas existentes.",
       );
       // NACAR_DATOS_DEMO=1 (expo): mesas, platos, tarifas, insumos y recetas de ejemplo.
