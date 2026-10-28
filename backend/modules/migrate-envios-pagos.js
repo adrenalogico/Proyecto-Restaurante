@@ -11,28 +11,32 @@ async function validarExistentes(conexion, sql) {
       [tabla],
     );
     if (!actual) continue;
-    const error = () => {
+    // El detalle dice qué no coincide (motor, columna o restricción) para corregirlo.
+    const error = (detalle) => {
       throw new Error(
-        `Envíos/pagos: ${tabla} tiene una estructura incompatible. No se modificó; revisá sus columnas, claves y restricciones.`,
+        `Envíos/pagos: ${tabla} tiene una estructura incompatible (${detalle}). No se modificó; revisá sus columnas, claves y restricciones.`,
       );
     };
-    if (actual.ENGINE !== "InnoDB") error();
+    if (actual.ENGINE !== "InnoDB") error(`motor ${actual.ENGINE}`);
     const [columnas] = await conexion.query("SHOW COLUMNS FROM ??", [tabla]);
     const esperadas = [
       ...cuerpo.matchAll(
         /^  (\w+) ((?:VARCHAR|CHAR|DECIMAL|DATETIME|TINYINT)\([^)]*\)|INT) (.*),?$/gm,
       ),
     ];
-    if (columnas.length !== esperadas.length) error();
+    if (columnas.length !== esperadas.length)
+      error(`${columnas.length} columnas, se esperaban ${esperadas.length}`);
     for (const [, nombre, tipo, resto] of esperadas) {
       const campo = columnas.find((c) => c.Field === nombre);
+      const tipoActual = String(campo?.Type ?? "").toLowerCase();
       if (
         !campo ||
-        campo.Type.toLowerCase().replace(/^int\(\d+\)/, "int") !==
-          tipo.toLowerCase() ||
+        tipoActual.replace(/^int\(\d+\)/, "int") !== tipo.toLowerCase() ||
         campo.Null !== (resto.includes("NOT NULL") ? "NO" : "YES")
       )
-        error();
+        error(
+          `columna ${nombre}: ${tipoActual || "falta"} ${campo?.Null ?? ""}`,
+        );
     }
     const [[ddl]] = await conexion.query("SHOW CREATE TABLE ??", [tabla]);
     const normalizar = (valor) => valor.toLowerCase().replace(/[`\s()]/g, "");
@@ -41,14 +45,11 @@ async function validarExistentes(conexion, sql) {
       .split("\n")
       .filter((l) => /PRIMARY KEY|UNIQUE KEY|CONSTRAINT/.test(l))) {
       // CHECK y claves deben conservarse; el motor puede agregar paréntesis/comillas de identificador.
-      if (
-        !creado.includes(
-          normalizar(
-            linea.replace(/,$/, "").replace(/ ON DELETE RESTRICT/g, ""),
-          ),
-        )
-      )
-        error();
+      const esperada = normalizar(
+        linea.replace(/,$/, "").replace(/ ON DELETE RESTRICT/g, ""),
+      );
+      if (!creado.includes(esperada))
+        error(`falta ${esperada.slice(0, 60)}; hay ${creado.slice(0, 900)}`);
     }
   }
 }
