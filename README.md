@@ -53,6 +53,9 @@ arranque carga mesas, platos, tarifas, insumos y recetas de ejemplo para la expo
 puede repetir sin duplicar ni pisar lo que se cargue a mano. Con `NACAR_VISITANTE_PUBLICO=1`
 (también incluido) existe una cuenta pública de mozo con usuario y clave `visitante` para el
 público de la expo; en cada arranque se le repone esa clave. Con `0` no se toca.
+`NACAR_CLAVES_SIMPLES=1` (también incluido) pone en cada cuenta del equipo su usuario en
+minúsculas como clave: es solo para la expo con datos de prueba. Después de la expo hay que
+ponerlo en `0` y cambiar las claves desde la pantalla de usuarios.
 
 ### Paso a paso (todo desde los paneles web)
 

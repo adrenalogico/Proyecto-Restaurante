@@ -151,6 +151,20 @@ export async function asegurarVisitantePublico(pool = db) {
     );
 }
 
+// Expo (NACAR_CLAVES_SIMPLES=1): la clave de cada cuenta del equipo es su usuario en
+// minúsculas. Solo para datos de prueba: quien adivine "elias" entra como administrador.
+export async function aplicarClavesSimples({ env = process.env, pool = db } = {}) {
+  const usuarios = [
+    (env.ADMIN_USERNAME || "elias").trim().toLowerCase(),
+    ...leerEquipo(env).map((u) => u.username),
+  ];
+  for (const usuario of new Set(usuarios))
+    await pool.query("UPDATE usuarios SET password_hash=? WHERE usuario=?", [
+      await hashClave(usuario),
+      usuario,
+    ]);
+}
+
 if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href

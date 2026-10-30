@@ -20,6 +20,8 @@ services:
         value: "1"
       - key: NACAR_VISITANTE_PUBLICO
         value: "1"
+      - key: NACAR_CLAVES_SIMPLES
+        value: "1"
       - key: DB_SSL
         value: "1"
       - key: DB_DATABASE

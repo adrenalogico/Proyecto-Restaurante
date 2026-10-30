@@ -92,6 +92,7 @@ export async function prepararEquipo({ online = false } = {}) {
       cargarAccesosPruebas,
       leerEquipo,
       asegurarVisitantePublico,
+      aplicarClavesSimples,
     } = await import("./seed-usuarios.js");
     await migrar();
     if (online) {
@@ -115,6 +116,10 @@ export async function prepararEquipo({ online = false } = {}) {
       if (process.env.NACAR_VISITANTE_PUBLICO === "1") {
         await asegurarVisitantePublico();
         console.log('Cuenta pública lista: usuario y clave "visitante" (mozo).');
+      }
+      if (process.env.NACAR_CLAVES_SIMPLES === "1") {
+        await aplicarClavesSimples();
+        console.log("Claves simples aplicadas: cada cuenta usa su usuario en minúsculas.");
       }
       // NACAR_DATOS_DEMO=1 (expo): mesas, platos, tarifas, insumos y recetas de ejemplo.
       if (process.env.NACAR_DATOS_DEMO === "1") {
