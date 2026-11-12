@@ -1,9 +1,13 @@
+/**
+ * Inicio del proceso HTTP. app.js construye las rutas y sus dependencias; aquí solo se abre el puerto.
+ * La preparación de SQL se ejecuta antes mediante los comandos de scripts/preparar-equipo.js.
+ * En Render, aunque el servicio se haya creado a mano con "npm start" desde backend/,
+ * se compila el frontend si falta y se prepara la base (instala o migra, cuentas y datos
+ * de ejemplo) antes de servir. Ambos pasos son repetibles; en las PC del equipo no corren.
+ */
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-// En Render, aunque el servicio se haya creado a mano con "npm start" desde backend/:
-// compila el frontend si falta y prepara la base (instala o migra, admin y datos de
-// ejemplo) antes de servir. Ambos pasos son repetibles; en las PC del equipo no corren.
 if (process.env.RENDER === "true") {
   // Los mismos valores fijos del render.yaml, por si el servicio no se creó con él.
   const entorno = process.env;
@@ -17,8 +21,8 @@ if (process.env.RENDER === "true") {
   entorno.NACAR_CLAVES_SIMPLES ||= "1";
   if (/\.aivencloud\.com$/i.test(entorno.DB_HOST || "")) entorno.DB_SSL ||= "1";
   for (const paso of [
-    ["./modules/construir-frontend.js"],
-    ["./modules/preparar-equipo.js", "--online"],
+    ["./scripts/construir-frontend.js"],
+    ["./scripts/preparar-equipo.js", "--online"],
   ]) {
     const [archivo, ...argumentos] = paso;
     execFileSync(
